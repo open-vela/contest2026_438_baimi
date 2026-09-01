@@ -9,7 +9,7 @@
       "tool": "codex",
       "started_at": "2026-09-01T09:00:00.000Z",
       "last_event_at": "2026-09-01T10:30:00.000Z",
-      "event_count": 20,
+      "event_count": 10,
       "file_path": "logs/IdlebBack/2026-09-01/codex__20260901-velacare-d12x-0001.jsonl",
       "collection_mode": "cli",
       "health": "ok"
