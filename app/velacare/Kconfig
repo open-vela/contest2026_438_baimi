@@ -1,0 +1,62 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config VELACARE_USE_DEMO
+	bool "VelaCare - proactive home safety and elder care terminal"
+	default n
+	depends on GRAPHICS_LVGL
+	depends on LV_USE_NUTTX
+	select NETUTILS_CJSON
+	---help---
+		VelaCare: an openvela based proactive home safety and elder care
+		terminal for the ArtInChip D12x (D12X-Demo68-nor) board. It combines
+		environment sensing, risk detection, daily-life reminders, touch
+		interaction, event recording and optional ai_agent assisted analysis.
+
+		Local rule engine and LVGL UI work fully offline. AI analysis via
+		openvelaClaw is optional (see VELACARE_ENABLE_AGENT).
+
+if VELACARE_USE_DEMO
+
+config VELACARE_DATA_DIR
+	string "VelaCare data directory"
+	default "/data/velacare"
+
+config VELACARE_SIM_SENSOR
+	bool "Simulate sensor data by default"
+	default y
+	---help---
+		Start with the built-in simulated temperature/humidity/gas/motion
+		source so the whole flow can be demonstrated without external
+		sensors. Can be toggled from the settings page at runtime.
+
+config VELACARE_POLL_MS
+	int "Sensor poll interval (milliseconds)"
+	default 5000
+
+config VELACARE_ALARM_NODE
+	string "Alarm output device node (empty = log only)"
+	default ""
+	---help---
+		Optional GPIO/PWM device node to drive a buzzer or LED, e.g.
+		"/dev/led0". When empty the alarm state is only shown on screen
+		and logged to syslog.
+
+config VELACARE_ENABLE_AGENT
+	bool "VelaCare AI Agent integration (ai_agent)"
+	default y
+	depends on EXAMPLES_AI_AGENT_VELA || VELACLAW_DAEMON
+	---help---
+		Enable openvelaClaw integration so VelaCare can ask the LLM to
+		explain detected risks and generate care suggestions.
+
+		The application degrades gracefully: when the agent daemon or LLM
+		is unavailable, it falls back to built-in local advice so the
+		core reminder and alarm flow still works.
+
+		Disable this option to build a UI-only firmware when ai_agent is
+		not yet enabled on the target board.
+
+endif

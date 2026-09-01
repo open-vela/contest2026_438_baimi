@@ -1,0 +1,14 @@
+# 编译产物（避免误提交）
+build/
+out/
+*.o
+*.a
+*.elf
+*.hex
+*.map
+*.exe
+*.def
+*.obj
+*.tds
+
+# 注意：logs/ 下导出的 AI Coding 日志必须提交，不要忽略

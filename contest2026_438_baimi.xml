@@ -9,8 +9,6 @@
   <include name="openvela.xml"/>
 
   <project path="contest2026_438_baimi" name="contest2026_438_baimi">
-    <linkfile src="app/hello_app" dest="packages/demos/contest2026_438_hello_app"/>
-    <linkfile src="quickapp/hello_quickapp" dest="packages/apps/contest2026_438_hello_quickapp"/>
-    <linkfile src="board/contest_board" dest="vendor/openvela/boards/contest2026_438_board"/>
+    <linkfile src="app/velacare" dest="packages/demos/contest2026_438_velacare"/>
   </project>
 </manifest>

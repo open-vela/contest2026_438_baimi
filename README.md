@@ -1,148 +1,99 @@
-# contest2026_438_baimi
+# VelaCare：基于 openvela 的主动式居家安全与老人看护智能终端
 
-👋 欢迎参加 **2026 首届 openvela AI 硬件开发者大赛**！
+## 一、作品简介
 
-这是组委会为你的队伍创建的**专属参赛仓库**（本仓为样例/模板，队伍编号 `438`；你看到的将是你自己的 `contest2026_<编号>_<队伍名>`）。比赛期间，你的全部参赛代码、打包产物与 AI Coding 日志都提交到这里。
+VelaCare 是一台面向独居老人和家庭照护者的主动式居家安全终端，运行在
+**openvela + ai_agent** 上，硬件为匠芯创 **D12x（D12X-Demo68-nor）** 开发板与
+4.3 英寸触控屏。
 
-> 本仓既是「代码仓」，又内置了一键拉取整套 openvela 工程的 `repo` 清单（manifest）。你只需跟它打交道，**自始至终只动一个文件夹**。
+它把「环境监测 → 风险识别 → 主动提醒 → 处置确认 → 事件记录」整合成一个闭环：
+通过本地规则状态机（NORMAL / ATTENTION / WARNING / EMERGENCY / OFFLINE）主动发现
+高温、空气异常、长时间无人活动等风险，自动弹窗告警并联动声光；按预设时间主动
+推送饮水、服药、作息提醒，支持确认与稍后升级；所有事件落盘可回看。联网时由
+ai_agent 对风险摘要生成解释与照护建议，断网时自动降级为本地规则与本地建议，
+核心功能完全离线可用。
 
----
+**亮点：**
 
-## 一、先读这些官方文档
+- 真正的「主动 + 执行」：阈值主动、定时主动、事件主动三类场景齐备，不是被动问答
+- 适老化交互：大字体、大按钮、分级配色（绿/黄/橙/红），GT911 电容触控直操作
+- 端侧优先、云端可选：LLM 断连不影响任何核心能力
+- 两个可复用主动 Skill：`home-safety-guard`、`elder-care-reminder`，随应用自动安装
+- 完整演示闭环：模拟传感器 + 一键触发异常，无需外设即可完整跑通演示流程
 
-**通用（所有赛道必读）：**
+## 二、选题方向
 
-| 文档                                                                                                                                     | 用途                                           |
-| ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| [《大赛总览》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/contest_overview.md)                        | 赛道、流程、评分、资源，建议先通读             |
-| [《参赛代码提交指南》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/code_submission_guide.md)           | 仓库获取、提交流程、时间与权限（**以此为准**） |
-| [《AI Coding 日志归集与提交手册》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_coding_log_guide.md) | 如何导出 AI 对话日志并提交到 `logs/`           |
+**AI 硬件产品创新**。基于 openvela + ai_agent 开发能主动感知、主动提醒、可执行
+处置闭环的嵌入式 AI 应用，覆盖大赛要求的「阈值主动、定时主动、事件主动」三类
+主动任务，并沉淀自定义 Skill。
 
-**按你的赛道选读（三选一）：**
+## 三、目录结构
 
-| 赛道                  | 教程导航                                                                                                                                                 |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 快应用 / 手表应用创新 | [快应用教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/quickapp/quickapp_guide_index.md)                         |
-| AI 硬件产品创新       | [AI 硬件赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_hardware/ai_hardware_guide_index.md)              |
-| 新硬件适配            | [新硬件适配赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/hardware_porting/hardware_porting_guide_index.md) |
+```text
+contest2026_438_baimi/
+├── app/velacare/              # VelaCare 应用（映射到 packages/demos/contest2026_438_velacare）
+│   ├── velacare_main.c        # 入口：LVGL 初始化、事件循环、--sim/--selftest
+│   ├── velacare_core.h/.c     # 核心：传感器、风险状态机、提醒调度、事件存储、Agent
+│   ├── velacare_ui.h/.c       # LVGL 界面：首页/环境/提醒/事件/设置 + 通知弹窗
+│   ├── velacare_skills.h      # 内置 Skill（启动时写入 /data/agent/skills/）
+│   ├── skills/                # Skill 源文件（home-safety-guard / elder-care-reminder）
+│   ├── tests/                 # 宿主冒烟测试（无开发板可跑，验证核心逻辑）
+│   └── Kconfig / Makefile / Make.defs / CMakeLists.txt
+├── docs/                      # 架构说明、构建指南、演示剧本、测试记录
+├── logs/                      # AI Coding 日志（按组委会规范导出提交）
+├── contest2026_438_baimi.xml  # 仓库 manifest（linkfile 映射）
+└── openvela.xml               # openvela 全量工程清单（组委会提供，勿改）
+```
 
----
+## 四、运行方式
 
-## 二、第一步：拉取完整工程
-
-用组委会提供的命令一键拉取「openvela 全量源码 + 你的专属仓」：
+在 Ubuntu 开发环境（本队使用 VirtualBox 虚拟机）中：
 
 ```bash
+# 1. 首次拉取完整工程
 repo init -u https://github.com/open-vela/contest2026_438_baimi \
   -b dev-ai-contest-2026 -m contest2026_438_baimi.xml
 repo sync -c -j8
+
+# 2. 下载 D12x 工具链（首次）
+./vendor/artinchip/tools/env.sh
+
+# 3. menuconfig 启用 VelaCare 与中文字体
+./build.sh vendor/artinchip/boards/d12x/demo68-nor/configs/nsh_lvgl/ \
+  --cmake menuconfig
+#   Application Configuration -> Packages -> VelaCare -> VELACARE_USE_DEMO=y
+#   VELACARE_ENABLE_AGENT=y（ai_agent 就绪后；否则可先关掉做 UI-only 固件）
+#   Graphics support -> LVGL -> Enable Simsun 16 CJK（中文显示）
+
+# 4. 编译 + 打包
+./build.sh vendor/artinchip/boards/d12x/demo68-nor/configs/nsh_lvgl/ -j8
+cd vendor/artinchip/pack && ./pack.sh
+
+# 5. 烧录（D12x 官方烧录工具）后，NSH 中运行：
+nsh> velacare --sim          # 模拟传感器模式，完整演示
+nsh> velacare --selftest     # 核心自检
 ```
 
-同步后，你的整个仓库位于工作区的 `contest2026_438_baimi/`，openvela 全量源码在外层（`nuttx/`、`apps/`、`packages/`、`vendor/` 等）。
-
----
-
-## 三、第二步：在哪里写代码
-
-**只在自己的仓目录 `contest2026_438_baimi/` 里开发。** 不同作品形态放在对应子目录，manifest 会通过 `<linkfile>` 把它们**软链**到 openvela 编译树该在的位置——你不用手动 copy：
-
-| 作品形态 | 你的代码放这里             | 系统自动映射到                                 |
-| -------- | -------------------------- | ---------------------------------------------- |
-| 应用     | `app/hello_app/`           | `packages/demos/contest2026_438_hello_app`     |
-| 快应用   | `quickapp/hello_quickapp/` | `packages/apps/contest2026_438_hello_quickapp` |
-| 板级适配 | `board/contest_board/`     | `vendor/openvela/boards/contest2026_438_board` |
-
-> 用不到的形态目录可以删掉；新增作品时按同样规则加子目录，并在 `contest2026_438_baimi.xml` 里补一条 `<linkfile>` 映射即可。**生产仓库（packages/nuttx/vendor 等）零改动。**
-
-建议仓库目录约定（便于评委定位）：
-
-```text
-app/ | quickapp/ | board/   # 你的作品代码
-logs/                       # AI Coding 日志（主动导出后提交，格式见 logs/README.md）
-README.md                   # 作品说明（提交前请改成你自己的，见第六节）
-```
-
-> 仓内附带了一个 `.gitignore.example`，给出了**编译产物**等不需要进仓的文件示例。如需启用，`cp .gitignore.example .gitignore` 后按需增删即可。**注意 `logs/` 下最终导出的 AI Coding 日志必须提交，不要忽略。**
->
-> `logs/` 的目录结构与提交格式见 [logs/README.md](logs/README.md)。
-
----
-
-## 四、第三步：编译与运行
-
-编译/运行步骤随作品形态不同而不同，请参考你所在赛道的教程导航：
-
-- 快应用 / 手表应用：[快应用教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/quickapp/quickapp_guide_index.md)（含模拟器与开发板部署）。
-- AI 硬件产品创新：[AI 硬件赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_hardware/ai_hardware_guide_index.md)（环境搭建、编译烧录、Skill 开发）。
-- 新硬件适配：[新硬件适配赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/hardware_porting/hardware_porting_guide_index.md)（BSP 移植、最小 NSH 基线）。
-
-子目录已通过 manifest 中的 `<linkfile>` 软链进 openvela 编译树，因此构建在 openvela 工作区**根目录**（即你这个仓的上一级）进行。openvela 使用 `build.sh` 作为统一入口，接收一个 **board config 路径**作为参数：
-
-```bash
-# 进入 openvela 工作区根目录（你的仓的上一级）
-cd ..
-
-# 通用语法：第一个参数是 board config 路径，第二个参数可以是 menuconfig / distclean 等
-./build.sh <board-config-path> [menuconfig|distclean] [-j8]
-```
-
-> 具体的 board config 路径、目标产物、模拟器/真机部署方式请以你所在赛道的教程导航为准。本仓 `app/` `quickapp/` `board/` 三个示例骨架对应的 Kconfig 选项可通过 `menuconfig` 启用。
-
----
-
-## 五、第四步：提交作品
-
-1. **fork** 你的专属仓 → 开发 → `git commit` 并推送 → 向专属仓发起 **Pull Request**，可**自行 review 并合入**（无需等组委会）。
-2. **AI Coding 日志**：与 AI 工具的对话会自动记录到本机 staging（不会自动上传），需你**主动导出/打包**选定会话到仓内 `logs/` 目录后一并提交。详见[《AI Coding 日志归集与提交手册》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_coding_log_guide.md)。
-3. 若需改动 **nuttx 等公共仓库**，不在本仓改，而是 fork 对应公共仓、以 PR 提交到 `dev-ai-contest-2026` 分支，由组委会 review 后合入。
-
-> ⏰ **提交作品截止：9 月 20 日**。截止后统一收回 push 权限，仍可查看 / clone。
->
-> 获奖后再按要求将作品 PR 至 openvela 上游对应仓库（走标准 PR + CI 流程）。
-
-### 关于 PR 与 CLA
-
-- 本仓所有改动通过 **Pull Request** 合入（分支保护强制，可自行合入自己的 PR）。
-- 首次贡献需在[**官网签署 CLA**](https://openvela.com/#/community/cla)；PR 上会自动跑 `cla/signature` 检查，在官网签署成功后，在 PR 评论 `/check-cla` 复检即可通过。
-
----
-
-## 六、提交前：把本 README 改成你的作品说明
-
-本文件目前是组委会给的**使用说明书**。**作品提交前，请把它替换成你自己作品的说明**，方便评委快速了解你做了什么、怎么跑起来。建议至少包含以下内容：
-
-```markdown
-# <你的作品名>
-
-## 一、作品简介
-<一句话/一段话说明这个作品是什么、解决什么问题、亮点在哪>
-
-## 二、选题方向
-<快应用 / 手表应用创新 ｜ AI 硬件产品创新 ｜ 新硬件适配 ｜ 自定方向，并简述理由>
-
-## 三、目录结构
-<列出你这个仓里各目录/文件的作用，例如：>
-- `app/xxx/`        — <说明>
-- `board/xxx/`      — <说明>
-- `quickapp/xxx/`   — <说明>
-- `logs/`           — AI Coding 日志
-- `docs/` 或其他    — <说明>
-
-## 四、运行方式
-<拉取工程后，如何编译、烧录/部署、运行的完整步骤；最好能让评委照着一步步复现>
+完整步骤、菜单选项与排错见 [docs/BUILD_GUIDE.md](docs/BUILD_GUIDE.md)。
 
 ## 五、AI Coding 使用说明
-<说明本作品如何借助 AI 辅助开发：
-- 在需求拆解 / 方案设计 / 编码 / 调试 / 文档等环节如何与 AI 协作；
-- AI 对开发效率或质量带来的实际帮助。
-完整对话日志见 logs/ 目录>
-```
 
-> 提示：将会根据「作品本身 + 你的 README 说明 + `logs/` 里的 AI Coding 日志」来理解和评估你的作品，README 写清楚很重要。
+- **需求拆解与方案设计**：借助 AI 分析赛道要求，参考官方 mini_memo 示例，确定
+  「本地规则兜底 + ai_agent 增强」的端侧架构与五页 UI 结构。
+- **编码**：AI 生成 C 代码骨架（LVGL 页面、cJSON 持久化、velaclaw 客户端调用），
+  人工 review 并修复线程安全、空指针、编码等问题。
+- **调试**：通过 `--selftest` 自检、syslog 分级日志、模拟数据 + 一键异常按钮
+  快速复现风险链路。
+- **文档**：AI 协作整理架构说明、构建指南、演示剧本与测试记录。
+- 本作品的全部 AI 对话日志按组委会《AI Coding 日志归集与提交手册》导出到
+  `logs/` 目录，随代码一并提交。
 
----
+## 附：开发进度
 
-## 附：仓库命名规范
-
-`contest2026_<编号>_<队伍名>` — 编号三位零填充；队名 slug（全小写、英文/拼音、连字符）。例：`contest2026_438_baimi`。
-（仓库由组委会统一创建，**每队仅一个仓**，无需自行命名。）
+- [x] 应用框架：LVGL 五页 UI、核心状态机、提醒调度、事件存储
+- [x] 主动 Skill：home-safety-guard / elder-care-reminder
+- [x] 文档：架构 / 构建 / 演示 / 测试
+- [x] 宿主冒烟测试：风险状态机 / 提醒 / 持久化 / 离线降级（ALL PASS）
+- [ ] D12x 实机：工具链编译、烧录、屏幕触控验证（按官方 `nsh_lvgl` 配置）
+- [ ] ai_agent 实机接入与 MiMo 配置（D12x 网络条件就绪后）
+- [ ] 演示视频、PPT 与最终提交材料
