@@ -1,36 +1,51 @@
-# contest2026_438_baimi
+# VelaCare
 
-👋 欢迎参加 **2026 首届 openvela AI 硬件开发者大赛**！
+面向独居老人和家庭照护者的主动式居家安全终端。老人端跑在匠芯创 D12X 上，家人端通过 ESP32-S3 网关看状态、确认告警和收听语音提示。
 
-这是组委会为你的队伍创建的**专属参赛仓库**（本仓为样例/模板，队伍编号 `438`；你看到的将是你自己的 `contest2026_<编号>_<队伍名>`）。比赛期间，你的全部参赛代码、打包产物与 AI Coding 日志都提交到这里。
+当前可演示版本：**D12X v0.8.0 family-care + ESP32-S3 v0.15.1**。本仓库提交的是可核实源码，不提交 `.img` / `.bin` 镜像。
 
-> 本仓既是「代码仓」，又内置了一键拉取整套 openvela 工程的 `repo` 清单（manifest）。你只需跟它打交道，**自始至终只动一个文件夹**。
+## 一、作品简介
 
----
+VelaCare 把烟雾、漏水、门窗和跌倒四路风险收到一块适老屏上，并用蜂鸣器、中文语音和家人网页把“发生了什么、老人是否安全、家人有没有看见”说清楚。
 
-## 一、先读这些官方文档
+已经落地的能力：
 
-**通用（所有赛道必读）：**
+- D12X 四页：首页、设备、求助、家人。跌倒时出现大按钮「确认安全」。
+- ESP32 采集 MQ-2、雨水比较器、门磁和 MPU-6500/9250，每秒发送 `VC1` 心跳。
+- 报警分级：普通提醒、严重告警、持续未恢复。
+- 家人确认/静音只停蜂鸣器和语音，不改写传感器真值。门还开着，界面就必须继续显示异常。
+- 老人确认安全只通知家人，跌倒状态要等 IMU 回到安全姿态才恢复。
+- 跌倒语音在 ESP32 播放，不在 D12X 上播 TTS，避免界面卡死。
+- 断网时事件写入 NVS，最多 12 条，网络恢复后可补传。
 
-| 文档                                                                                                                                     | 用途                                           |
-| ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
-| [《大赛总览》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/contest_overview.md)                        | 赛道、流程、评分、资源，建议先通读             |
-| [《参赛代码提交指南》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/code_submission_guide.md)           | 仓库获取、提交流程、时间与权限（**以此为准**） |
-| [《AI Coding 日志归集与提交手册》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_coding_log_guide.md) | 如何导出 AI 对话日志并提交到 `logs/`           |
+明确没有做、报告里也不宣称的：
 
-**按你的赛道选读（三选一）：**
+- 没有在板端加载 Xiaomi MiMo，也没有运行时 `ai_agent`。
+- `velacare_skill.c` / `velacare_cron.c` 仍是占位，当前固件不会扫描 `/data/agent/skills/`。
+- MQ-2 和 IMU 跌倒是比赛原型，不能替代认证烟感和医疗跌倒报警器。
+- 不是新硬件平台适配赛道，没有全新 BSP。
 
-| 赛道                  | 教程导航                                                                                                                                                 |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 快应用 / 手表应用创新 | [快应用教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/quickapp/quickapp_guide_index.md)                         |
-| AI 硬件产品创新       | [AI 硬件赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_hardware/ai_hardware_guide_index.md)              |
-| 新硬件适配            | [新硬件适配赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/hardware_porting/hardware_porting_guide_index.md) |
+## 二、选题方向
 
----
+AI 硬件产品创新。选择 D12X 官方板 `D12X-Demo68-nor`，把 openvela 的 LVGL 图形能力用在老人端，把传感器融合、语音和网页放在 ESP32 网关。
 
-## 二、第一步：拉取完整工程
+## 三、目录结构
 
-用组委会提供的命令一键拉取「openvela 全量源码 + 你的专属仓」：
+- `app/velacare/` — D12X 端 VelaCare 应用源码，通过 manifest 映射到 `packages/demos/contest2026_438_velacare`
+- `gateway/esp32_velacare_gateway/` — ESP32-S3 网关源码、语音 PCM 头文件和 wav 源
+- `skills/velacare-dev/` — 本队自建开发 Skill（硬性要求）。沉淀反复使用的固件/协议/烧录/提交流程
+- `data/agent/skills/` — 早期看护 Skill 设计草稿。当前固件未加载，不要当成运行时能力
+- `docs/` — 运行说明、技术报告、演示视频占位
+- `evidence/` — 少量真机照片
+- `logs/gouzhongfei/` — 真实 AI Coding 日志，不是 example 占位
+- `tools/` — 串口和协议辅助脚本
+- `board/`、`quickapp/` — 官方模板保留，本作品未使用
+- `contest2026_438_baimi.xml` — 把 `app/velacare` 链到 openvela 编译树
+- `JUDGE_GUIDE.md` — 评委 3 分钟入口
+
+## 四、运行方式
+
+### 1. 拉工程
 
 ```bash
 repo init -u https://github.com/open-vela/contest2026_438_baimi \
@@ -38,111 +53,71 @@ repo init -u https://github.com/open-vela/contest2026_438_baimi \
 repo sync -c -j8
 ```
 
-同步后，你的整个仓库位于工作区的 `contest2026_438_baimi/`，openvela 全量源码在外层（`nuttx/`、`apps/`、`packages/`、`vendor/` 等）。
+在 `menuconfig` 中启用 `CONFIG_LVX_USE_DEMO_CONTEST2026_438_VELACARE`。
 
----
+### 2. 编译 D12X
 
-## 三、第二步：在哪里写代码
-
-**只在自己的仓目录 `contest2026_438_baimi/` 里开发。** 不同作品形态放在对应子目录，manifest 会通过 `<linkfile>` 把它们**软链**到 openvela 编译树该在的位置——你不用手动 copy：
-
-| 作品形态 | 你的代码放这里             | 系统自动映射到                                 |
-| -------- | -------------------------- | ---------------------------------------------- |
-| 应用     | `app/hello_app/`           | `packages/demos/contest2026_438_hello_app`     |
-| 快应用   | `quickapp/hello_quickapp/` | `packages/apps/contest2026_438_hello_quickapp` |
-| 板级适配 | `board/contest_board/`     | `vendor/openvela/boards/contest2026_438_board` |
-
-> 用不到的形态目录可以删掉；新增作品时按同样规则加子目录，并在 `contest2026_438_baimi.xml` 里补一条 `<linkfile>` 映射即可。**生产仓库（packages/nuttx/vendor 等）零改动。**
-
-建议仓库目录约定（便于评委定位）：
-
-```text
-app/ | quickapp/ | board/   # 你的作品代码
-logs/                       # AI Coding 日志（主动导出后提交，格式见 logs/README.md）
-README.md                   # 作品说明（提交前请改成你自己的，见第六节）
-```
-
-> 仓内附带了一个 `.gitignore.example`，给出了**编译产物**等不需要进仓的文件示例。如需启用，`cp .gitignore.example .gitignore` 后按需增删即可。**注意 `logs/` 下最终导出的 AI Coding 日志必须提交，不要忽略。**
->
-> `logs/` 的目录结构与提交格式见 [logs/README.md](logs/README.md)。
-
----
-
-## 四、第三步：编译与运行
-
-编译/运行步骤随作品形态不同而不同，请参考你所在赛道的教程导航：
-
-- 快应用 / 手表应用：[快应用教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/quickapp/quickapp_guide_index.md)（含模拟器与开发板部署）。
-- AI 硬件产品创新：[AI 硬件赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_hardware/ai_hardware_guide_index.md)（环境搭建、编译烧录、Skill 开发）。
-- 新硬件适配：[新硬件适配赛道教程导航](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/hardware_porting/hardware_porting_guide_index.md)（BSP 移植、最小 NSH 基线）。
-
-子目录已通过 manifest 中的 `<linkfile>` 软链进 openvela 编译树，因此构建在 openvela 工作区**根目录**（即你这个仓的上一级）进行。openvela 使用 `build.sh` 作为统一入口，接收一个 **board config 路径**作为参数：
+在 openvela 工作区根目录：
 
 ```bash
-# 进入 openvela 工作区根目录（你的仓的上一级）
-cd ..
-
-# 通用语法：第一个参数是 board config 路径，第二个参数可以是 menuconfig / distclean 等
-./build.sh <board-config-path> [menuconfig|distclean] [-j8]
+./build.sh vendor/artinchip/boards/d12x/demo68-nor/configs/nsh_lvgl -j8
 ```
 
-> 具体的 board config 路径、目标产物、模拟器/真机部署方式请以你所在赛道的教程导航为准。本仓 `app/` `quickapp/` `board/` 三个示例骨架对应的 Kconfig 选项可通过 `menuconfig` 启用。
+本队实际构建在 WSL 树 `/root/openvela-work/contest2026_438_baimi` 完成。打包脚本见开发过程中的 `rebuild-v080-family-care.sh` 逻辑：只同步当前工作文件，并确认最终 ELF 不含 `velacare_tts` / `velacare_voice_pcm`。
 
----
+烧录使用匠芯创 AiBurn，目标板 D12X-DEMO68-V1-2。不要把 Windows 上的 COM4 自动当烧录口反复抢占。
 
-## 五、第四步：提交作品
+### 3. 编译 ESP32-S3
 
-1. **fork** 你的专属仓 → 开发 → `git commit` 并推送 → 向专属仓发起 **Pull Request**，可**自行 review 并合入**（无需等组委会）。
-2. **AI Coding 日志**：与 AI 工具的对话会自动记录到本机 staging（不会自动上传），需你**主动导出/打包**选定会话到仓内 `logs/` 目录后一并提交。详见[《AI Coding 日志归集与提交手册》](https://github.com/open-vela/docs/blob/dev-ai-contest-2026/zh-cn/contest_2026/ai_coding_log_guide.md)。
-3. 若需改动 **nuttx 等公共仓库**，不在本仓改，而是 fork 对应公共仓、以 PR 提交到 `dev-ai-contest-2026` 分支，由组委会 review 后合入。
+Arduino IDE / arduino-cli：
 
-> ⏰ **提交作品截止：9 月 20 日**。截止后统一收回 push 权限，仍可查看 / clone。
->
-> 获奖后再按要求将作品 PR 至 openvela 上游对应仓库（走标准 PR + CI 流程）。
+- FQBN：`esp32:esp32:esp32s3:FlashSize=8M,PartitionScheme=default_8MB`
+- 源码：`gateway/esp32_velacare_gateway/esp32_velacare_gateway.ino`
+- 必须一起编译 `voice_prompts.h`
+- 本机调试口最近是 COM8（CP210x），烧录前请重新确认
 
-### 关于 PR 与 CLA
+### 4. 接线（当前真机）
 
-- 本仓所有改动通过 **Pull Request** 合入（分支保护强制，可自行合入自己的 PR）。
-- 首次贡献需在[**官网签署 CLA**](https://openvela.com/#/community/cla)；PR 上会自动跑 `cla/signature` 检查，在官网签署成功后，在 PR 评论 `/check-cla` 复检即可通过。
+| 模块 | ESP32-S3 | 说明 |
+| --- | --- | --- |
+| 门磁 | GPIO6 / GND | 内部上拉，LOW=正常，HIGH=告警 |
+| 漏水 | GPIO4 | 雨水比较器 DO，低电平告警 |
+| 烟雾 | GPIO5 | MQ-2 比较器经电平转换，低电平告警 |
+| IMU | SDA GPIO8 / SCL GPIO9 | MPU-6500/9250，地址 0x68 |
+| MAX98357A | DIN GPIO7 / BCLK GPIO15 / LRC GPIO16 | 外接喇叭，SPK± 差分 |
+| 与 D12X UART | TX GPIO17 -> D12X RX1；RX GPIO18 <- D12X TX1 | 115200 8N1，共地，不并电源 |
 
----
+跌倒双锚点（2026-09-18 本机标定，已写进固件）：
 
-## 六、提交前：把本 README 改成你的作品说明
+- 安全姿态：`(0.149537, 0.059815, 0.986945)`
+- 跌倒姿态：`(-0.957276, -0.199432, 0.209404)`
+- 夹角约 `87.04°`；回到安全锚点并稳定 2.5 秒才恢复
 
-本文件目前是组委会给的**使用说明书**。**作品提交前，请把它替换成你自己作品的说明**，方便评委快速了解你做了什么、怎么跑起来。建议至少包含以下内容：
+### 5. 配网与家人页
 
-```markdown
-# <你的作品名>
+无已保存 Wi-Fi 时，ESP32 打开热点 `VelaCare-Setup-xxxx`，配置页 `http://192.168.4.1`。连上家庭网络后访问：
 
-## 一、作品简介
-<一句话/一段话说明这个作品是什么、解决什么问题、亮点在哪>
+```text
+http://<网关IP>/dashboard
+```
 
-## 二、选题方向
-<快应用 / 手表应用创新 ｜ AI 硬件产品创新 ｜ 新硬件适配 ｜ 自定方向，并简述理由>
-
-## 三、目录结构
-<列出你这个仓里各目录/文件的作用，例如：>
-- `app/xxx/`        — <说明>
-- `board/xxx/`      — <说明>
-- `quickapp/xxx/`   — <说明>
-- `logs/`           — AI Coding 日志
-- `docs/` 或其他    — <说明>
-
-## 四、运行方式
-<拉取工程后，如何编译、烧录/部署、运行的完整步骤；最好能让评委照着一步步复现>
+自检页：`/selftest`。不要把热点密码写进仓库或报告。
 
 ## 五、AI Coding 使用说明
-<说明本作品如何借助 AI 辅助开发：
-- 在需求拆解 / 方案设计 / 编码 / 调试 / 文档等环节如何与 AI 协作；
-- AI 对开发效率或质量带来的实际帮助。
-完整对话日志见 logs/ 目录>
-```
 
-> 提示：将会根据「作品本身 + 你的 README 说明 + `logs/` 里的 AI Coding 日志」来理解和评估你的作品，README 写清楚很重要。
+本作品几乎全程用 Codex Desktop 做需求拆解、协议设计、LVGL/ESP32 编码、真机联调和提交整理；部分调试也用过 Claude Code。AI 负责改代码和查日志，人负责接线、姿态标定、听语音和确认界面有没有卡死。
 
----
+自建 Skill 见 `skills/velacare-dev/SKILL.md`。真实对话日志见 `logs/gouzhongfei/`，不是官方模板里的 example。
 
-## 附：仓库命名规范
+AI 协助编码占比按“成稿代码由 AI 起草、人负责验收和标定”估计约 80%–90%，这是协助口径，不是跳过人工审查。Token 总量无法从 Codex Desktop 完整导出，报告中按未统计处理，不编造数字。
 
-`contest2026_<编号>_<队伍名>` — 编号三位零填充；队名 slug（全小写、英文/拼音、连字符）。例：`contest2026_438_baimi`。
-（仓库由组委会统一创建，**每队仅一个仓**，无需自行命名。）
+## 六、队伍
+
+- 队名：baimi
+- 编号：438
+- 仓库：`contest2026_438_baimi`
+- 队长：林明强（GitHub `IdlebBack`）
+- 队员：苟中飞（GitHub `gouzhongfei`）
+- 分工：林明强负责仓库与提交协调；苟中飞负责 D12X 应用、ESP32 网关、传感器接入、真机联调和文档
+
+演示视频计划于 2026-09-19 补拍后放入 `docs/` 或按官方要求上传。当前先看 `docs/demo-video.md`。

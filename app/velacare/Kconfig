@@ -1,0 +1,14 @@
+#
+# VelaCare — elder-care UI on D12X-Demo68-nor
+# Team 438 (baimi)
+#
+
+config LVX_USE_DEMO_CONTEST2026_438_VELACARE
+	bool "VelaCare family health guardian"
+	default n
+	---help---
+		Enable VelaCare v0.8.0 family-care: LVGL home/device/help/family
+		pages, UART sensor-gateway protocol, onboard buzzer, and
+		family-care requests. velacare_skill.c and velacare_cron.c
+		are linked stubs; the current firmware does not load
+		ai_agent or /data/agent/skills at runtime.

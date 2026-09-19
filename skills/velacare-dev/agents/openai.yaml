@@ -1,0 +1,4 @@
+interface:
+  display_name: "VelaCare 开发"
+  short_description: "VelaCare 的 D12X+ESP32 固件、烧录和提交流程"
+  default_prompt: "按 VelaCare 的 D12X + ESP32 流程处理这次固件、协议、烧录或比赛打包任务。"
