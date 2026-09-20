@@ -35,9 +35,10 @@ AI 硬件产品创新。选择 D12X 官方板 `D12X-Demo68-nor`，把 openvela �
 - `gateway/esp32_velacare_gateway/` — ESP32-S3 网关源码、语音 PCM 头文件和 wav 源
 - `skills/velacare-dev/` — 本队自建开发 Skill（硬性要求）。沉淀反复使用的固件/协议/烧录/提交流程
 - `data/agent/skills/` — 早期看护 Skill 设计草稿。当前固件未加载，不要当成运行时能力
-- `docs/` — 运行说明、技术报告、演示视频占位
+- `docs/` — 运行说明、技术报告和演示视频说明
 - `evidence/` — 少量真机照片
-- `logs/gouzhongfei/` — 真实 AI Coding 日志，不是 example 占位
+- `logs/gouzhongfei/` — 队员苟中飞从 Codex Desktop 导出的 AI Coding 会话日志
+- `logs/IdlebBack/` — 队长林明强人工整理的精简开发过程记录（非原始会话导出）
 - `tools/` — 串口和协议辅助脚本
 - `board/`、`quickapp/` — 官方模板保留，本作品未使用
 - `contest2026_438_baimi.xml` — 把 `app/velacare` 链到 openvela 编译树
@@ -107,7 +108,7 @@ http://<网关IP>/dashboard
 
 本作品几乎全程用 Codex Desktop 做需求拆解、协议设计、LVGL/ESP32 编码、真机联调和提交整理；部分调试也用过 Claude Code。AI 负责改代码和查日志，人负责接线、姿态标定、听语音和确认界面有没有卡死。
 
-自建 Skill 见 `skills/velacare-dev/SKILL.md`。真实对话日志见 `logs/gouzhongfei/`，不是官方模板里的 example。
+自建 Skill 见 `skills/velacare-dev/SKILL.md`。队员导出的真实对话日志见 `logs/gouzhongfei/`；队长的精简开发记录见 `logs/IdlebBack/`，其来源和整理方式已在 `logs/README.md` 中如实说明。
 
 AI 协助编码占比按“成稿代码由 AI 起草、人负责验收和标定”估计约 80%–90%，这是协助口径，不是跳过人工审查。Token 总量无法从 Codex Desktop 完整导出，报告中按未统计处理，不编造数字。
 
@@ -120,4 +121,4 @@ AI 协助编码占比按“成稿代码由 AI 起草、人负责验收和标定�
 - 队员：苟中飞（GitHub `gouzhongfei`）
 - 分工：林明强负责仓库与提交协调；苟中飞负责 D12X 应用、ESP32 网关、传感器接入、真机联调和文档
 
-演示视频计划于 2026-09-19 补拍后放入 `docs/` 或按官方要求上传。当前先看 `docs/demo-video.md`。
+演示视频已经完成并上传，下载链接、提取码和内容说明见[《演示视频说明》](演示视频说明.md)。
