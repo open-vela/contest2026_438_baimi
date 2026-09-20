@@ -11,8 +11,8 @@
 2. `app/velacare/` — D12X v0.8.0 源码
 3. `gateway/esp32_velacare_gateway/esp32_velacare_gateway.ino` — ESP32 v0.15.1，含跌倒双锚点
 4. `skills/velacare-dev/SKILL.md` — 自建 Skill
-5. `logs/gouzhongfei/` — 真实 AI Coding 日志
-6. `docs/` — 技术报告；演示视频明天补拍
+5. `logs/gouzhongfei/`、`logs/IdlebBack/` — 两名成员的 AI Coding 日志/开发记录，来源说明见 `logs/README.md`
+6. `docs/` — 技术报告与运行说明；演示视频链接见[《演示视频说明》](演示视频说明.md)
 7. `evidence/` — 真机照片，不是模拟器截图冒充成品
 
 ## 真机怎么演示
